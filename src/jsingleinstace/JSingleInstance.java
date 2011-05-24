@@ -19,7 +19,8 @@ public class JSingleInstance {
 	private int port;
 	
 	private Socket clientSocket = null;
-	PrintWriter clientOut;
+	private ServerSocket serverSocket;
+	private PrintWriter clientOut;
 	
 	public JSingleInstance(String path) throws IOException {
 		this.f = new File(path);
@@ -27,13 +28,13 @@ public class JSingleInstance {
 		if(!f.exists())
 			setupServerSocket();
 		else {
-			setRunning(true);
+			isAlreadyRunning = true;
 			getPortFromFile();
-			setupClientSocker();
+			setupClientSocket();
 		}
 	}
 	
-	private void setupClientSocker() throws UnknownHostException, IOException {
+	private void setupClientSocket() throws UnknownHostException, IOException {
 		clientSocket = new Socket("localhost", port);
 		clientOut = new PrintWriter(clientSocket.getOutputStream(), true);
 	}
@@ -53,8 +54,8 @@ public class JSingleInstance {
 	}
 
 	private void setupServerSocket() throws IOException {
-		final ServerSocket server = new ServerSocket(0);
-		port = server.getLocalPort();
+		serverSocket = new ServerSocket(0);
+		port = serverSocket.getLocalPort();
 		
 		BufferedWriter out = new BufferedWriter(new FileWriter(f));
 		out.write("" + port);
@@ -67,11 +68,12 @@ public class JSingleInstance {
 				while(true) {
 					try {
 						Socket clientSocket = null;
-						clientSocket = server.accept();
+						clientSocket = serverSocket.accept();
 						new Thread(new ClientThread(clientSocket)).start();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						break; // seems like were exitting
 					}
 				}
 			}
@@ -86,22 +88,13 @@ public class JSingleInstance {
 		return true; //TODO wait for ok
 	}
 	
-	public File getF() {
-		return f;
+	public void exit() throws IOException {
+		serverSocket.close();
+		f.delete();
 	}
-	public void setF(File f) {
-		this.f = f;
-	}
-	public boolean isRunning() {
+	
+	public boolean isAlreadyRunning() {
 		return isAlreadyRunning;
 	}
-	public void setRunning(boolean isRunning) {
-		this.isAlreadyRunning = isRunning;
-	}
-	public int getPort() {
-		return port;
-	}
-	public void setPort(int port) {
-		this.port = port;
-	}
+	
 }
