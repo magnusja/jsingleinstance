@@ -7,12 +7,36 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.EventObject;
+import java.util.Iterator;
+import java.util.List;
 
 public class JSingleInstance {
+	
+	public interface CommandListener {
+		public void onCommand(CommandEvent e);
+	}
+	
+	public class CommandEvent extends EventObject {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public String command;
+		public CommandEvent(Object source, String command) {
+			super(source);
+			this.command = command;
+		}
+	}
+	
+	List<CommandListener> commandListeners = new ArrayList<CommandListener>();
+	
 	
 	private File f;
 	private boolean isAlreadyRunning = false;
@@ -32,6 +56,14 @@ public class JSingleInstance {
 			getPortFromFile();
 			setupClientSocket();
 		}
+	}
+	
+	public synchronized void addDataEventListener(CommandListener l) {
+		commandListeners.add(l);
+	}
+	
+	public synchronized void removeDataEventListener(CommandListener l) {
+		commandListeners.remove(l);
 	}
 	
 	private void setupClientSocket() throws UnknownHostException, IOException {
@@ -95,6 +127,40 @@ public class JSingleInstance {
 	
 	public boolean isAlreadyRunning() {
 		return isAlreadyRunning;
+	}
+	
+	private synchronized void fireCommandEvent(String data) {
+		CommandEvent event = new CommandEvent(this, data);
+		Iterator<CommandListener> i = commandListeners.iterator();
+		while(i.hasNext())
+			((CommandListener) i.next()).onCommand(event);
+	}
+	
+	
+	public class ClientThread implements Runnable {
+		
+		Socket clientSocket;
+		BufferedReader input;
+		
+		public ClientThread(Socket clientSocket) throws IOException {
+			this.clientSocket = clientSocket;
+			input = new BufferedReader(
+	                new InputStreamReader(
+	                    clientSocket.getInputStream()));
+		}
+		
+		@Override
+		public void run() {
+			try {
+				String msg = input.readLine();
+				System.out.println(msg);
+				fireCommandEvent(msg);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 	}
 	
 }
