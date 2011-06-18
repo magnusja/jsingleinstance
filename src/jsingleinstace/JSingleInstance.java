@@ -152,9 +152,11 @@ public class JSingleInstance {
 		@Override
 		public void run() {
 			try {
-				String msg = input.readLine();
-				System.out.println(msg);
-				fireCommandEvent(msg);
+				while(true) {
+					String msg = input.readLine();
+					System.out.println(msg);
+					fireCommandEvent(msg);
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
