@@ -46,14 +46,14 @@ import java.util.List;
  * to receive commands just add an CommandListener
  * {@link #exit()} exits the instance, must be called when you exit your app!
  * but not if there is already an instance running
- * 
+ * @version 0.1.1
  */
 public class JSingleInstance {
 	
 	/**
 	 * represents the version string
 	 */
-	public final static String VERSION = "0.1";
+	public final static String VERSION = "0.1.1";
 	
 	/**
 	 * @author MJ
@@ -98,10 +98,25 @@ public class JSingleInstance {
 	 * @param path file where instance info (like port and pid) can be stored
 	 * should be something like "USERFILES\myapp.info"
 	 * @throws IOException thrown if path is not writeable or other instance
-	 * has not removed the info file (not called {@link #exit()}, or crashed)
+	 * has not removed the info file (eg. your app crashed)
 	 */
 	public JSingleInstance(String path) throws IOException {
 		this.f = new File(path);
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			
+			public void run() {
+				if(isAlreadyRunning) return;
+				try {
+					serverSocket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				f.delete();
+			}
+			
+		});
 		
 		if(!f.exists())
 			setupServerSocket();
@@ -184,6 +199,7 @@ public class JSingleInstance {
 	 * has to be called to delete the info file and close the socket
 	 * DO NOT call if there is another instance running!
 	 * @throws IOException thrown if info file does not exist
+	 * @deprecated since 0.1.1 this will happen automatically
 	 */
 	public void exit() throws IOException {
 		if(isAlreadyRunning) return;
@@ -224,6 +240,7 @@ public class JSingleInstance {
 			try {
 				while(true) {
 					String msg = input.readLine();
+					if(msg == null) break; // client closed connection
 					System.out.println(msg);
 					fireCommandEvent(msg);
 				}

@@ -68,20 +68,22 @@ public class Test {
 					
 				});
 		    	
-		    	f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		    	f.addWindowListener(new WindowAdapter() {
+		    	
+		    	f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		    	/*f.addWindowListener(new WindowAdapter() {
 		    		public void windowClosing(WindowEvent ev) {
 		    			try {
-							i.exit();
+							i.exit(); // deprecated
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 		                System.exit(0);
 		            }
-		    	});
+		    	});*/
 			} else {
 				JFrame f = new JFrame("Second instance");
+				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				f.setSize(300, 100);
 		    	f.setLocation(300, 200);
 		    	final JTextField field = new JTextField(20);
