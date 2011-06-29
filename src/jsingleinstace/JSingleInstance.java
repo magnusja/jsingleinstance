@@ -54,14 +54,17 @@ public class JSingleInstance {
 	/**
 	 * represents the version string
 	 */
-	public final static String VERSION = "0.1.1";
+	public final static String VERSION = "0.2";
 	private final static String FORCE_EXIT = "FORCE_EXIT_JSINGLE";
 	private final static String OK = "OK_JSINGLE";
 	
 	/**
 	 * @author MJ
 	 * interface to receive commands
-	 *
+	 * you should return fast, because the client instance
+	 * is waiting by default 5 seconds, otherwise {@link JSingleInstance#sendCommand(String)}
+	 * will return false.
+	 * you can change this timeout via {@link JSingleInstance#setTimeout(int)}
 	 */
 	public interface CommandListener {
 		public void onCommand(CommandEvent e);
@@ -181,7 +184,7 @@ public class JSingleInstance {
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						break; // seems like were exitting
+						break; // seems like were exiting
 					}
 				}
 			}
@@ -192,6 +195,7 @@ public class JSingleInstance {
 	/**
 	 * this sets the time in second the {@link #sendCommand(String)} method
 	 * shall wait for an OK
+	 * zero timeout means invite waiting for an answer
 	 * @param sec the timeout in seconds
 	 */
 	public void setTimeout(int sec) {
@@ -208,7 +212,7 @@ public class JSingleInstance {
 	/**
 	 * sends a command to existing instance
 	 * @param cmd the command which should be send
-	 * must not contain new line ('\n') because it is used to seperate commands!
+	 * must not contain new line ('\n') because it is used to separate commands!
 	 * @return success or not
 	 */
 	public boolean sendCommand(String cmd) {
