@@ -47,7 +47,7 @@ import java.util.List;
  * to receive commands just add an CommandListener
  * {@link #exit()} exits the instance, must be called when you exit your app!
  * but not if there is already an instance running
- * @version 0.1.1
+ * @version 0.2
  */
 public class JSingleInstance {
 	

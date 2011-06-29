@@ -19,20 +19,9 @@
 
 package test;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-
 import jsingleinstace.JSingleInstance;
-import jsingleinstace.JSingleInstance.CommandEvent;
-import jsingleinstace.JSingleInstance.CommandListener;
 
 public class Test {
 
@@ -42,61 +31,12 @@ public class Test {
 	public static void main(String[] args) {
 		try {
 			final JSingleInstance i = new JSingleInstance("./jsingle");
-			if(!i.isAlreadyRunning()) {
-				JFrame f = new JFrame("First instance");
-				f.setSize(250, 250);
-		    	f.setLocation(300,200);
-		    	final JTextArea area = new JTextArea(10, 40);
-		    	f.getContentPane().add(BorderLayout.CENTER, area);
-		    	f.setVisible(true);
-		    	
-		    	i.addCommandListener(new CommandListener() {
-
-					@Override
-					public void onCommand(final CommandEvent e) {
-						SwingUtilities.invokeLater(new Runnable() {
-
-							@Override
-							public void run() {
-								area.append(e.command + "\n");
-							}
-							
-						});
-					}
-					
-				});
-		    	
-		    	
-		    	f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		    	/*f.addWindowListener(new WindowAdapter() {
-		    		public void windowClosing(WindowEvent ev) {
-		    			try {
-							i.exit(); // deprecated
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-		                System.exit(0);
-		            }
-		    	});*/
+			if(i.isAlreadyRunning()) {
+				SecondInstance si = new SecondInstance(i);
+				si.setVisible(true);
 			} else {
-				JFrame f = new JFrame("Second instance");
-				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				f.setSize(300, 100);
-		    	f.setLocation(300, 200);
-		    	final JTextField field = new JTextField(20);
-		    	f.getContentPane().add(BorderLayout.WEST, field);
-		    	JButton button = new JButton("Send");
-		    	button.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent arg0) {
-						System.out.println(i.sendCommand(field.getText()));
-					}
-		    		
-		    	});
-		    	f.getContentPane().add(BorderLayout.EAST, button);
-		    	f.setVisible(true);
+				FirstInstance fi = new FirstInstance(i);
+				fi.setVisible(true);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
