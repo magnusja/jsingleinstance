@@ -54,6 +54,7 @@ public class JSingleInstance {
 	 * represents the version string
 	 */
 	public final static String VERSION = "0.1.1";
+	private final static String FORCE_EXIT = "FORCE_EXIT";
 	
 	/**
 	 * @author MJ
@@ -127,11 +128,11 @@ public class JSingleInstance {
 		}
 	}
 	
-	public synchronized void addDataEventListener(CommandListener l) {
+	public synchronized void addCommandListener(CommandListener l) {
 		commandListeners.add(l);
 	}
 	
-	public synchronized void removeDataEventListener(CommandListener l) {
+	public synchronized void removeCommandListener(CommandListener l) {
 		commandListeners.remove(l);
 	}
 	
@@ -215,6 +216,11 @@ public class JSingleInstance {
 		return isAlreadyRunning;
 	}
 	
+	public void forceExit() {
+		if(!isAlreadyRunning) return;
+		clientOut.println(FORCE_EXIT);
+	}
+	
 	private synchronized void fireCommandEvent(String data) {
 		CommandEvent event = new CommandEvent(this, data);
 		Iterator<CommandListener> i = commandListeners.iterator();
@@ -239,10 +245,17 @@ public class JSingleInstance {
 		public void run() {
 			try {
 				while(true) {
-					String msg = input.readLine();
+					final String msg = input.readLine();
 					if(msg == null) break; // client closed connection
-					System.out.println(msg);
-					fireCommandEvent(msg);
+					if(FORCE_EXIT.equals(input)) System.exit(-1);
+					//System.out.println(msg);
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							fireCommandEvent(msg);
+						}
+						
+					}).start();
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

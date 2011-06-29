@@ -22,8 +22,6 @@ package test;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -52,7 +50,7 @@ public class Test {
 		    	f.getContentPane().add(BorderLayout.CENTER, area);
 		    	f.setVisible(true);
 		    	
-		    	i.addDataEventListener(new CommandListener() {
+		    	i.addCommandListener(new CommandListener() {
 
 					@Override
 					public void onCommand(final CommandEvent e) {
