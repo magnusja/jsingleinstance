@@ -91,7 +91,7 @@ public class Test {
 
 					@Override
 					public void actionPerformed(ActionEvent arg0) {
-						i.sendCommand(field.getText());
+						System.out.println(i.sendCommand(field.getText()));
 					}
 		    		
 		    	});
