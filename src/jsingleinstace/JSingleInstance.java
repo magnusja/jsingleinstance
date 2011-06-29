@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -54,7 +55,8 @@ public class JSingleInstance {
 	 * represents the version string
 	 */
 	public final static String VERSION = "0.1.1";
-	private final static String FORCE_EXIT = "FORCE_EXIT";
+	private final static String FORCE_EXIT = "FORCE_EXIT_JSINGLE";
+	private final static String OK = "OK_JSINGLE";
 	
 	/**
 	 * @author MJ
@@ -93,6 +95,7 @@ public class JSingleInstance {
 	private Socket clientSocket = null;
 	private ServerSocket serverSocket;
 	private PrintWriter clientOut;
+	private BufferedReader clientIn;
 	
 	/**
 	 * constructs a new object
@@ -139,6 +142,9 @@ public class JSingleInstance {
 	private void setupClientSocket() throws UnknownHostException, IOException {
 		clientSocket = new Socket("localhost", port);
 		clientOut = new PrintWriter(clientSocket.getOutputStream(), true);
+		clientIn = new BufferedReader(new InputStreamReader(
+                clientSocket.getInputStream()));
+		clientSocket.setSoTimeout(5 * 1000);
 	}
 
 	private void getPortFromFile() throws FileNotFoundException {
@@ -182,6 +188,23 @@ public class JSingleInstance {
 			
 		}).start();
 	}
+	
+	/**
+	 * this sets the time in second the {@link #sendCommand(String)} method
+	 * shall wait for an OK
+	 * @param sec the timeout in seconds
+	 */
+	public void setTimeout(int sec) {
+		if(!isAlreadyRunning) return;
+		
+		try {
+			clientSocket.setSoTimeout(sec * 1000);
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * sends a command to existing instance
 	 * @param cmd the command which should be send
@@ -189,10 +212,21 @@ public class JSingleInstance {
 	 * @return success or not
 	 */
 	public boolean sendCommand(String cmd) {
-		if(!isAlreadyRunning) return false;
-		
+		if(!isAlreadyRunning) return false;		
 		clientOut.println(cmd);
-		return true; //TODO wait for ok
+		String answer = null;
+		try {
+			answer = clientIn.readLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		if(OK.equals(answer))
+			return true;
+		else
+			return false;
 	}
 	
 	/**
@@ -216,6 +250,12 @@ public class JSingleInstance {
 		return isAlreadyRunning;
 	}
 	
+	/**
+	 * this method will force the running instance
+	 * to close via System.exit(-1)
+	 * you can try this, if it seems like the running instance
+	 * has crashed and only the jsingleinstance part is running
+	 */
 	public void forceExit() {
 		if(!isAlreadyRunning) return;
 		clientOut.println(FORCE_EXIT);
@@ -233,12 +273,14 @@ public class JSingleInstance {
 		
 		Socket clientSocket;
 		BufferedReader input;
+		final PrintWriter output;
 		
 		public ClientThread(Socket clientSocket) throws IOException {
 			this.clientSocket = clientSocket;
 			input = new BufferedReader(
 	                new InputStreamReader(
 	                    clientSocket.getInputStream()));
+			output = new PrintWriter(clientSocket.getOutputStream(), true);
 		}
 		
 		@Override
@@ -253,6 +295,7 @@ public class JSingleInstance {
 						@Override
 						public void run() {
 							fireCommandEvent(msg);
+							output.println(OK);
 						}
 						
 					}).start();
