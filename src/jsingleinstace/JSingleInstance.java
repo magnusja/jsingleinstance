@@ -47,7 +47,7 @@ import java.util.List;
  * to receive commands just add an CommandListener
  * {@link #exit()} exits the instance, must be called when you exit your app!
  * but not if there is already an instance running
- * @version 0.2
+ * @version 0.2.1
  */
 public class JSingleInstance {
 	
@@ -195,7 +195,7 @@ public class JSingleInstance {
 	/**
 	 * this sets the time in second the {@link #sendCommand(String)} method
 	 * shall wait for an OK
-	 * zero timeout means invite waiting for an answer
+	 * zero timeout means infinite waiting for an answer
 	 * @param sec the timeout in seconds
 	 */
 	public void setTimeout(int sec) {
@@ -293,7 +293,7 @@ public class JSingleInstance {
 				while(true) {
 					final String msg = input.readLine();
 					if(msg == null) break; // client closed connection
-					if(FORCE_EXIT.equals(input)) System.exit(-1);
+					if(FORCE_EXIT.equals(msg)) System.exit(-1);
 					//System.out.println(msg);
 					new Thread(new Runnable() {
 						@Override

@@ -58,12 +58,21 @@ public class SecondInstance extends JDialog {
 						getLabel().setText("success? -> " + instance.sendCommand(getTextField().getText()));
 					}
 				});
+				{
+					JButton ForceExitButton = new JButton("Force Exit");
+					ForceExitButton.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent arg0) {
+							instance.forceExit();
+						}
+					});
+					buttonPane.add(ForceExitButton);
+				}
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
 			}
 			{
-				JButton cancelButton = new JButton("Exit");
+				JButton cancelButton = new JButton("Close");
 				cancelButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						System.exit(0);					}
