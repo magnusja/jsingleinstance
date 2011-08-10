@@ -31,7 +31,6 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
@@ -47,14 +46,14 @@ import java.util.List;
  * to receive commands just add an CommandListener
  * {@link #exit()} exits the instance, must be called when you exit your app!
  * but not if there is already an instance running
- * @version 0.2.1
+ * @version 0.2.2
  */
 public class JSingleInstance {
 	
 	/**
 	 * represents the version string
 	 */
-	public final static String VERSION = "0.2";
+	public final static String VERSION = "0.2.2";
 	private final static String FORCE_EXIT = "FORCE_EXIT_JSINGLE";
 	private final static String OK = "OK_JSINGLE";
 	
@@ -142,12 +141,22 @@ public class JSingleInstance {
 		commandListeners.remove(l);
 	}
 	
-	private void setupClientSocket() throws UnknownHostException, IOException {
-		clientSocket = new Socket("localhost", port);
-		clientOut = new PrintWriter(clientSocket.getOutputStream(), true);
-		clientIn = new BufferedReader(new InputStreamReader(
-                clientSocket.getInputStream()));
-		clientSocket.setSoTimeout(5 * 1000);
+	private void setupClientSocket() throws IOException {
+		try {
+			clientSocket = new Socket("localhost", port);
+			clientOut = new PrintWriter(clientSocket.getOutputStream(), true);
+			clientIn = new BufferedReader(new InputStreamReader(
+	                clientSocket.getInputStream()));
+			clientSocket.setSoTimeout(5 * 1000);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			// seems like the app has crashed last time
+			// we just ignore that and start up normal
+			isAlreadyRunning = false;
+			f.delete();
+			setupServerSocket();
+		}
 	}
 
 	private void getPortFromFile() throws FileNotFoundException {
