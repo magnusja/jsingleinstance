@@ -22,7 +22,6 @@ package jsingleinstace;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -92,6 +91,11 @@ public class JSingleInstance {
 	
 	private File f;
 	private boolean isAlreadyRunning = false;
+	/**
+	 * true if the system is going down. In this case we don't want exceptions
+	 * which result in closing sockets
+	 */
+	private boolean shutdownInProgress = false;
 	private int port;
 	
 	private Socket clientSocket = null;
@@ -103,8 +107,9 @@ public class JSingleInstance {
 	 * constructs a new object
 	 * @param path file where instance info (like port and pid) can be stored
 	 * should be something like "USERFILES\myapp.info"
-	 * @throws IOException thrown if path is not writeable or other instance
-	 * has not removed the info file (eg. your app crashed)
+	 * @throws IOException thrown if path is not writeable, other instance
+	 * has not removed the info file (eg. your app crashed) or the file 
+	 * exists but was not previously created by our own
 	 */
 	public JSingleInstance(String path) throws IOException {
 		this.f = new File(path);
@@ -114,11 +119,9 @@ public class JSingleInstance {
 			public void run() {
 				if(isAlreadyRunning) return;
 				try {
+					shutdownInProgress = true;
 					serverSocket.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				} catch (IOException e) {}
 				f.delete();
 			}
 			
@@ -149,8 +152,7 @@ public class JSingleInstance {
 	                clientSocket.getInputStream()));
 			clientSocket.setSoTimeout(5 * 1000);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// connection can't be established
 			// seems like the app has crashed last time
 			// we just ignore that and start up normal
 			isAlreadyRunning = false;
@@ -159,17 +161,15 @@ public class JSingleInstance {
 		}
 	}
 
-	private void getPortFromFile() throws FileNotFoundException {
+	private void getPortFromFile() throws IOException {
 		
 		BufferedReader in = new BufferedReader(new FileReader(f));
 		try {
 			port = Integer.parseInt(in.readLine().trim());
 		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// NumberFormatException can only occur if we try to open a file
+			// which isn't previously created by ourself
+			throw new IOException("File already exists but have the wrong fileformat. Possibly clash of unknown existing File!");
 		}
 	}
 
@@ -191,9 +191,11 @@ public class JSingleInstance {
 						clientSocket = serverSocket.accept();
 						new Thread(new ClientThread(clientSocket)).start();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						break; // seems like were exiting
+						if(!shutdownInProgress) {
+							// Exception during setup of ServerSocket 
+							e.printStackTrace();
+						}
+						break; // seems like were exiting or any other error occurred
 					}
 				}
 			}
@@ -213,7 +215,7 @@ public class JSingleInstance {
 		try {
 			clientSocket.setSoTimeout(sec * 1000);
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
+			// Error in the underlying protocol
 			e.printStackTrace();
 		}
 	}
@@ -322,3 +324,4 @@ public class JSingleInstance {
 	}
 	
 }
+
