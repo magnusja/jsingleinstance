@@ -169,7 +169,9 @@ public class JSingleInstance {
 		} catch (NumberFormatException e) {
 			// NumberFormatException can only occur if we try to open a file
 			// which isn't previously created by ourself
-			throw new IOException("File already exists but have the wrong fileformat. Possibly clash of unknown existing File!");
+			throw new IOException("File already exists but has wrong format. Possibly clash of unknown existing File!");
+		} finally {
+			in.close();
 		}
 	}
 
@@ -251,6 +253,7 @@ public class JSingleInstance {
 	 * @throws IOException thrown if info file does not exist
 	 * @deprecated since 0.1.1 this will happen automatically
 	 */
+	@Deprecated
 	public void exit() throws IOException {
 		if(isAlreadyRunning) return;
 		serverSocket.close();
