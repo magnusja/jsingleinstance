@@ -2,35 +2,47 @@ package jsingleinstace;
 
 
 public class PipeCommunication extends Communication {
+	
+	static {
+		System.loadLibrary("pipe");
+	}
+	
+	private String uniqueIdentifier;
+	private boolean isAlreadyRunning;
+	
+	public PipeCommunication(String uniqueIdentifier) {
+		String tmpDir = System.getProperty("java.io.tmpdir");
+		if(tmpDir == null)
+			tmpDir = "";
+		this.uniqueIdentifier = tmpDir + uniqueIdentifier + ".jsingle";
+	}
 
+	private native int nativeInit(String identifier);
+	
 	@Override
 	void init() {
-		// TODO Auto-generated method stub
-
+		int res = nativeInit(uniqueIdentifier);
+		
+		if(res == 0) {
+			isAlreadyRunning = false;
+			return;
+		}
+		
+		// error
 	}
 
 	@Override
 	boolean isAlreadyRunning() {
-		// TODO Auto-generated method stub
-		return false;
+		return isAlreadyRunning;
 	}
 
 	@Override
-	boolean sendCommand(String cmd) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	native boolean sendCommand(String cmd);
 
 	@Override
-	String waitForCommand() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	native String waitForCommand();
 
 	@Override
-	void shutdown() {
-		// TODO Auto-generated method stub
-
-	}
+	native void shutdown();
 
 }

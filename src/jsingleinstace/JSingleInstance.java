@@ -26,16 +26,15 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * 
- * @author MJ
- * a little class to allow only one instance of an application
- * {@link #JSingleInstance(String)} constructs a new object
- * {@link #isAlreadyRunning()} checks if an instance is already running
- * {@link #sendCommand(String)} send a command to the running instance
- * to receive commands just add an CommandListener
- * {@link #exit()} exits the instance, must be called when you exit your app!
- * but not if there is already an instance running
+ * A little class to allow only one instance of an application.
+ * <UL>
+ * <LI> {@link #JSingleInstance(Communication)} constructs a new object.
+ * <LI> {@link #isAlreadyRunning()} checks if an instance is already running.
+ * <LI> {@link #sendCommand(String)} send a command to the running instance.
+ * <LI> To receive commands just add an CommandListener via {@link #addCommandListener(CommandListener)}.
+ * </UL>
  * @version 0.2.2
+ * @author MJ
  */
 public class JSingleInstance {
 	
