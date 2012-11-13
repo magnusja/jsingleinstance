@@ -33,9 +33,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import jsingleinstace.JSingleInstance;
-import jsingleinstace.JSingleInstance.CommandEvent;
-import jsingleinstace.JSingleInstance.CommandListener;
+import jsingleinstance.JSingleInstance;
+import jsingleinstance.JSingleInstance.CommandEvent;
+import jsingleinstance.JSingleInstance.CommandListener;
 
 public class FirstInstance extends JDialog {
 

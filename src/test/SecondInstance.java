@@ -34,7 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import jsingleinstace.JSingleInstance;
+import jsingleinstance.JSingleInstance;
 
 public class SecondInstance extends JDialog {
 
