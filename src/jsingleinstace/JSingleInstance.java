@@ -102,7 +102,7 @@ public class JSingleInstance {
 	
 	private List<CommandListener> commandListeners = new ArrayList<CommandListener>();
 	
-	Communication communication;
+	private Communication communication;
 	
 	/**
 	 * constructs a new object
