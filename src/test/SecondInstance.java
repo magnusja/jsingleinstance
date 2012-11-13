@@ -2,19 +2,20 @@ package test;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 import jsingleinstace.JSingleInstance;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
 
 public class SecondInstance extends JDialog {
 
@@ -55,14 +56,24 @@ public class SecondInstance extends JDialog {
 				JButton okButton = new JButton("Send");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						getLabel().setText("success? -> " + instance.sendCommand(getTextField().getText()));
+						try {
+							getLabel().setText("success? -> " + instance.sendCommand(getTextField().getText()));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				});
 				{
 					JButton ForceExitButton = new JButton("Force Exit");
 					ForceExitButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent arg0) {
-							instance.forceExit();
+							try {
+								instance.forceExit();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						}
 					});
 					buttonPane.add(ForceExitButton);
