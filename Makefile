@@ -43,9 +43,10 @@ $(OUTPUT): $(OBJECTS)
 bin/%.o: jni/%.c
 	$(CC) $(INCLUDES) $(CFLAGS) -c -o $@ $<
 	
-pipe.h: src/jsingleinstance/PipeCommunication.java
+pipe.h:
 	javah -jni -classpath bin/ -o jni/pipe.h jsingleinstance.PipeCommunication
 	
 clean:
 	$(RM) jni/pipe.h
 	$(RM) $(OBJECTS)
+	$(RM) $(OUTPUT)
