@@ -22,6 +22,7 @@ package test;
 import java.io.IOException;
 
 import jsingleinstace.JSingleInstance;
+import jsingleinstace.SocketCommunication;
 
 public class Test {
 
@@ -30,7 +31,7 @@ public class Test {
 	 */
 	public static void main(String[] args) {
 		try {
-			final JSingleInstance i = new JSingleInstance("./jsingle");
+			final JSingleInstance i = new JSingleInstance(new SocketCommunication("./jsingle"));
 			if(i.isAlreadyRunning()) {
 				SecondInstance si = new SecondInstance(i);
 				si.setVisible(true);
