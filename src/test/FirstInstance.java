@@ -21,17 +21,18 @@ package test;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JTextArea;
-import javax.swing.JCheckBox;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.border.EmptyBorder;
 
 import jsingleinstance.JSingleInstance;
 import jsingleinstance.JSingleInstance.CommandEvent;
@@ -59,7 +60,9 @@ public class FirstInstance extends JDialog {
 		contentPanel.setLayout(new BorderLayout(0, 0));
 		{
 			textArea = new JTextArea();
-			contentPanel.add(textArea);
+			textArea.setEditable(false);
+			JScrollPane scrollPane = new JScrollPane(textArea);
+			contentPanel.add(scrollPane, BorderLayout.CENTER);
 		}
 		{
 			waitCheckBox = new JCheckBox("Wait 10 seconds after receiving command");
@@ -89,6 +92,7 @@ public class FirstInstance extends JDialog {
 			@Override
 			public void onCommand(CommandEvent e) {
 				getTextArea().append(e.command + "\n");
+				getTextArea().setCaretPosition(getTextArea().getDocument().getLength());
 				if(getWaitCheckBox().isSelected()) {
 					getTextArea().append("Waiting 10 seconds\n");
 					try {
