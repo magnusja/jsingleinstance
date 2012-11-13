@@ -1,6 +1,6 @@
 /**
  * JSingleInstance - allows running only one instance of any java app
- * Copyright (C) 2011 MJ <mj_dv@web.de>
+ * Copyright (C) 2011-2012 MJ <mj_dv@web.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -106,8 +106,8 @@ public class JSingleInstance {
 	
 	/**
 	 * constructs a new object
-	 * @param path file where instance info (like port and pid) can be stored
-	 * should be something like "USERFILES\myapp.info"
+	 * @param communication {@link Communication} Object which shall be used for
+	 * the communication between the instances.
 	 * @throws IOException thrown if path is not writeable, other instance
 	 * has not removed the info file (eg. your app crashed) or the file 
 	 * exists but was not previously created by our own
@@ -142,7 +142,7 @@ public class JSingleInstance {
 	}
 		
 	/**
-	 * checks if another instance is already running
+	 * Checks if another instance is already running.
 	 * @return true if there is another instance running
 	 */
 	public boolean isAlreadyRunning() {
@@ -150,10 +150,9 @@ public class JSingleInstance {
 	}
 	
 	/**
-	 * this method will force the running instance
-	 * to close via System.exit(-1)
-	 * you can try this, if it seems like the running instance
-	 * has crashed and only the jsingleinstance part is running
+	 * This method will force the running instance to close via System.exit(-1).
+	 * You can try this, if it seems like the running instance has crashed and 
+	 * only the jsingleinstance part is running.
 	 * @throws IOException 
 	 */
 	public void forceExit() throws IOException {
@@ -161,11 +160,10 @@ public class JSingleInstance {
 	}
 	
 	/**
-	 * sends a command to existing instance
+	 * Sends a command to existing instance.
 	 * @param cmd the command which should be send
-	 * must not contain new line ('\n') because it is used to separate commands!
-	 * @return success or not
-	 * @throws IOException 
+	 * @return true if success
+	 * @throws IOException If something fails
 	 */
 	public boolean sendCommand(String cmd) throws IOException {
 		return communication.sendCommand(cmd);
